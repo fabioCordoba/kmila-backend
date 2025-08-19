@@ -2,9 +2,13 @@ from django.db import models
 import random
 import string
 
+from django.forms import ValidationError
+
 from apps.core.models.base_model import BaseModel
 from apps.loan.constants.loan_constants import StatusChoices
 from apps.users.models.user import User
+from apps.wallet.constants.wallet_constants import ConceptChoices, TypeChoices
+from apps.wallet.models.wallet import Wallet
 
 
 def generate_code(name):
@@ -37,11 +41,28 @@ class Loan(BaseModel):
         max_length=10, choices=StatusChoices, default=StatusChoices.ACTIVO
     )
 
-    def save(self, *args, **kwargs):
+    def clean(self):
         if not self.code:
-            self.code = generate_code("loan")
-            self.capital_balance = self.amount
-            self.interest_balance = 0
+            available = Wallet.get_available_balance()
+            if not available or available < self.amount:
+                raise ValidationError(
+                    "No hay suficiente dinero en la caja para conceder este préstamo."
+                )
+            else:
+                self.code = generate_code("loan")
+                self.capital_balance = self.amount
+                self.interest_balance = 0
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        # 👇 Crear movimiento en caja SOLO al crear
+        if self._state.adding:
+            Wallet.objects.create(
+                type=TypeChoices.OUTPUT,
+                concept=ConceptChoices.LOAN,
+                amount=self.amount,
+                observation=f"Préstamo otorgado al cliente {self.client.first_name} {self.client.last_name}, código {self.code}",
+            )
         super().save(*args, **kwargs)
 
     @property

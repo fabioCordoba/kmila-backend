@@ -6,6 +6,7 @@ from django.db.models import Sum
 from rest_framework.response import Response
 
 
+from apps.loan.models.loan import Loan
 from apps.wallet.models import Wallet
 from apps.wallet.serializers.wallet_serializers import WalletSerializer
 
@@ -46,7 +47,10 @@ class QuickStatsView(APIView):
         available_capital = inputs - outputs
 
         # Invertido en préstamos activos
-        # invertido_prestamos = Prestamo.objects.filter(estado="activo").aggregate(total=Sum("monto"))["total"] or 0
+        invested_loans = (
+            Loan.objects.filter(status="active").aggregate(total=Sum("amount"))["total"]
+            or 0
+        )
 
         # Intereses ganados
         interest_earned = (
@@ -67,7 +71,7 @@ class QuickStatsView(APIView):
         return Response(
             {
                 "available_capital": available_capital,
-                # "invertido_prestamos": invertido_prestamos,
+                "invested_loans": invested_loans,
                 "interest_earned": interest_earned,
                 "recovered_capital": recovered_capital,
             }

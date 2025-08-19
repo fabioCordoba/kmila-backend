@@ -12,11 +12,20 @@ class Wallet(BaseModel):
         max_length=20, choices=ConceptChoices.choices, default=ConceptChoices.OTHER
     )
     amount = models.DecimalField(max_digits=12, decimal_places=2)
-    # loan = models.ForeignKey(
-    #     "Loan",
-    #     on_delete=models.SET_NULL,
-    #     null=True,
-    #     blank=True,
-    #     related_name="transactions",
-    # )
     observation = models.TextField(blank=True, null=True)
+
+    @classmethod
+    def get_available_balance(cls):
+        inputs = (
+            cls.objects.filter(type="input").aggregate(total=models.Sum("amount"))[
+                "total"
+            ]
+            or 0
+        )
+        outputs = (
+            cls.objects.filter(type="output").aggregate(total=models.Sum("amount"))[
+                "total"
+            ]
+            or 0
+        )
+        return inputs - outputs
