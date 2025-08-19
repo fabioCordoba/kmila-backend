@@ -25,9 +25,9 @@ from kmila import settings
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="lite thinking API Rest",
+        title="kmila API Rest",
         default_version="v1",
-        description="Documentacion prueba técnica lite thinking Api Rest",
+        description="Documentacion kmila Api Rest",
         terms_of_service="",
         contact=openapi.Contact(email="contact@snippets.local"),
         license=openapi.License(name="BSD License"),

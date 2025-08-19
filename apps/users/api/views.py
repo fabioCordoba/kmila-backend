@@ -2,6 +2,7 @@ from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.views import APIView
+from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from apps.users.api.serializers import (
@@ -51,10 +52,8 @@ class UserView(APIView):
         operation_description="It receives the user's information and updates it. A JWT must be sent in the header.",
         request_body=UserUpdateSerializer,
         responses={
-            200: openapi.Response(
-                "Usuario actualizado exitosamente", UserUpdateSerializer
-            ),
-            400: "Error en la solicitud. Verifica los datos enviados.",
+            200: openapi.Response("User successfully updated", UserUpdateSerializer),
+            400: "Error in the request. Please check the data you have submitted.",
         },
     )
     def put(self, request):
@@ -65,3 +64,19 @@ class UserView(APIView):
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    """
+    API endpoint to list, view, update, and delete users.
+    """
+
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.filter(is_active=True)
+    serializer_class = UserSerializer
