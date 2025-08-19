@@ -63,6 +63,7 @@ PROJECT_APPS = [
     "apps.core",
     "apps.users",
     "apps.wallet",
+    "apps.loan",
 ]
 
 THIRD_APPS = [
