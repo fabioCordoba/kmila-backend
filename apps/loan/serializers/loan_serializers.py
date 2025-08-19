@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from apps.loan.models.loan import Loan
+from apps.users.serializers.user_serializers import UserSerializer
 
 
 class LoanSerializer(serializers.ModelSerializer):
@@ -9,7 +10,6 @@ class LoanSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "code",
-            "client",
             "amount",
             "interest_rate",
             "capital_balance",
@@ -17,4 +17,23 @@ class LoanSerializer(serializers.ModelSerializer):
             "term_months",
             "start_date",
             "status",
+        ]
+
+
+class LoanClientSerializer(serializers.ModelSerializer):
+    client = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Loan
+        fields = [
+            "id",
+            "code",
+            "amount",
+            "interest_rate",
+            "capital_balance",
+            "interest_balance",
+            "term_months",
+            "start_date",
+            "status",
+            "client",
         ]

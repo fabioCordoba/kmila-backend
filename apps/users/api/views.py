@@ -5,12 +5,14 @@ from rest_framework.views import APIView
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from apps.users.api.serializers import (
+
+from apps.users.models import User
+from apps.users.serializers.user_loan_serializers import LoanUserSerializer
+from apps.users.serializers.user_serializers import (
     UserRegisterSerializer,
     UserSerializer,
     UserUpdateSerializer,
 )
-from apps.users.models import User
 
 
 class RegisterView(APIView):
@@ -78,5 +80,5 @@ class UserViewSet(
     """
 
     permission_classes = [IsAuthenticated]
-    queryset = User.objects.filter(is_active=True)
-    serializer_class = UserSerializer
+    queryset = User.objects.filter(is_active=True, rol="guest")
+    serializer_class = LoanUserSerializer

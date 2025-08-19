@@ -46,6 +46,7 @@ urlpatterns = [
     path("redocs/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     path("api/", include("apps.users.api.router")),
     path("api/", include("apps.wallet.api.router")),
+    path("api/", include("apps.loan.api.router")),
 ]
 
 if settings.DEBUG:
