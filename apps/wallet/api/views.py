@@ -1,6 +1,9 @@
 from rest_framework import viewsets, mixins
+from rest_framework.views import APIView
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Sum
+from rest_framework.response import Response
 
 
 from apps.wallet.models import Wallet
@@ -21,3 +24,51 @@ class WalletViewSet(
     permission_classes = [IsAuthenticated]
     queryset = Wallet.objects.filter(is_active=True)
     serializer_class = WalletSerializer
+
+
+class QuickStatsView(APIView):
+    """
+    Endpoint that returns quick calculations for the loan business.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # input and output
+        inputs = (
+            Wallet.objects.filter(type="input").aggregate(total=Sum("amount"))["total"]
+            or 0
+        )
+        outputs = (
+            Wallet.objects.filter(type="output").aggregate(total=Sum("amount"))["total"]
+            or 0
+        )
+        available_capital = inputs - outputs
+
+        # Invertido en préstamos activos
+        # invertido_prestamos = Prestamo.objects.filter(estado="activo").aggregate(total=Sum("monto"))["total"] or 0
+
+        # Intereses ganados
+        interest_earned = (
+            Wallet.objects.filter(type="input", concept="interest_payment").aggregate(
+                total=Sum("amount")
+            )["total"]
+            or 0
+        )
+
+        # Capital recuperado
+        recovered_capital = (
+            Wallet.objects.filter(type="input", concept="capital_payment").aggregate(
+                total=Sum("amount")
+            )["total"]
+            or 0
+        )
+
+        return Response(
+            {
+                "available_capital": available_capital,
+                # "invertido_prestamos": invertido_prestamos,
+                "interest_earned": interest_earned,
+                "recovered_capital": recovered_capital,
+            }
+        )
