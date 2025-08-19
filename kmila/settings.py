@@ -62,6 +62,7 @@ DJANGO_APPS = [
 PROJECT_APPS = [
     "apps.core",
     "apps.users",
+    "apps.wallet",
 ]
 
 THIRD_APPS = [
