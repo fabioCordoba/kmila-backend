@@ -47,6 +47,7 @@ urlpatterns = [
     path("api/", include("apps.users.api.router")),
     path("api/", include("apps.wallet.api.router")),
     path("api/", include("apps.loan.api.router")),
+    path("api/", include("apps.payment.api.router")),
 ]
 
 if settings.DEBUG:
