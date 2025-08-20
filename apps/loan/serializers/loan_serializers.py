@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from apps.loan.models.loan import Loan
+from apps.payment.serializers.payment_serializers import PaymentBasicSerializer
 from apps.users.serializers.user_serializers import UserSerializer
 
 
@@ -22,6 +23,7 @@ class LoanSerializer(serializers.ModelSerializer):
 
 class LoanClientSerializer(serializers.ModelSerializer):
     client = UserSerializer(read_only=True)
+    user_payments = PaymentBasicSerializer(many=True, read_only=True)
 
     class Meta:
         model = Loan
@@ -36,4 +38,5 @@ class LoanClientSerializer(serializers.ModelSerializer):
             "start_date",
             "status",
             "client",
+            "user_payments",
         ]

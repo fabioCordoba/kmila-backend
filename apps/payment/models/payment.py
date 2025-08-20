@@ -24,7 +24,8 @@ class Payment(BaseModel):
     loan = models.ForeignKey(
         Loan,
         on_delete=CASCADE,
-        related_name="loans",
+        verbose_name="Loan",
+        related_name="user_payments",
         limit_choices_to={"status__in": ["active", "overdue"]},
     )
     admin = models.ForeignKey(

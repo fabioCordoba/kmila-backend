@@ -19,3 +19,18 @@ class PaymentSerializer(serializers.ModelSerializer):
             "support",
             "status",
         ]
+
+
+class PaymentBasicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = [
+            "id",
+            "code",
+            "payment_date",
+            "capital_amount",
+            "interest_amount",
+            "observation",
+            "support",
+            "status",
+        ]
