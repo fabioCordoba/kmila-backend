@@ -21,7 +21,12 @@ def generate_code(name):
 
 class Payment(BaseModel):
     code = models.CharField(max_length=255, unique=True, blank=True)
-    loan = models.ForeignKey(Loan, on_delete=CASCADE, related_name="loans")
+    loan = models.ForeignKey(
+        Loan,
+        on_delete=CASCADE,
+        related_name="loans",
+        limit_choices_to={"status__in": ["active", "overdue"]},
+    )
     admin = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -44,47 +49,9 @@ class Payment(BaseModel):
 
     def clean(self):
         if not self.code:
-            # Validar que el pago no supere el saldo del préstamo
-            if self.capital_amount > self.loan.capital_balance:
-                raise ValidationError(
-                    "El pago de capital supera la deuda pendiente de capital."
-                )
-
-            if self.interest_amount > self.loan.interest_balance:
-                raise ValidationError(
-                    "El pago de intereses supera la deuda pendiente de intereses."
-                )
-
-            with transaction.atomic():
-                self.code = generate_code("payment")
-
-                # --- Validar y crear movimiento de capital ---
-                if self.capital_amount and self.capital_amount > 0:
-                    if self.capital_amount <= self.loan.capital_balance:
-                        # actualizar saldo
-                        self.loan.capital_balance -= self.capital_amount
-                        self.loan.save()
-
-                        # crear movimiento en Wallet
-                        Wallet.objects.create(
-                            type=TypeChoices.INPUT,
-                            concept=ConceptChoices.CAPITAL_PAYMENT,
-                            amount=self.capital_amount,
-                            observation=f"Pago de capital para préstamo {self.loan.code}",
-                        )
-
-                # --- Validar y crear movimiento de intereses ---
-                if self.interest_amount and self.interest_amount > 0:
-                    if self.interest_amount <= self.loan.interest_balance:
-                        self.loan.interest_balance -= self.interest_amount
-                        self.loan.save()
-
-                        Wallet.objects.create(
-                            type=TypeChoices.INPUT,
-                            concept=ConceptChoices.INTEREST_PAYMENT,
-                            amount=self.interest_amount,
-                            observation=f"Pago de intereses para préstamo {self.loan.code}",
-                        )
+            self.code = generate_code("payment")
+            # Aplica el pago al préstamo
+            self.loan.apply_payment(self)
 
     def save(self, *args, **kwargs):
         self.clean()
