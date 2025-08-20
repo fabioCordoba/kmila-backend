@@ -65,6 +65,16 @@ class Loan(BaseModel):
             )
         super().save(*args, **kwargs)
 
+    def total_debt(self):
+        """
+        Returns a dictionary with the total debt broken down into principal and interest.
+        """
+        return {
+            "capital_balance": self.capital_balance,
+            "interest_balance": self.interest_balance,
+            "total": self.capital_balance + self.interest_balance,
+        }
+
     @property
     def total_interest_amount(self):
         """Calculate the total interest payable on the entire loan (simple, not compound)."""
