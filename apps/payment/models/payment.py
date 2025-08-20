@@ -48,11 +48,42 @@ class Payment(BaseModel):
     )
 
     def clean(self):
+        if self.capital_amount < 0 or self.interest_amount < 0:
+            raise ValidationError("Los valores no pueden ser negativos.")
+
+        if self.capital_amount > self.loan.capital_balance:
+            raise ValidationError(
+                "El pago de capital supera la deuda pendiente de capital."
+            )
+
+        if self.interest_amount > self.loan.interest_balance:
+            raise ValidationError(
+                "El pago de intereses supera la deuda pendiente de intereses."
+            )
+
         if not self.code:
             self.code = generate_code("payment")
-            # Aplica el pago al préstamo
-            self.loan.apply_payment(self)
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
+
+        # Aplica el pago al préstamo
+        self.loan.apply_payment(self)
+
+        if self.capital_amount > 0:
+            Wallet.objects.create(
+                type=TypeChoices.INPUT,
+                concept=ConceptChoices.CAPITAL_PAYMENT,
+                amount=self.capital_amount,
+                observation=f"Pago a capital del préstamo {self.loan.code}",
+            )
+
+        if self.interest_amount > 0:
+            Wallet.objects.create(
+                type=TypeChoices.INPUT,
+                concept=ConceptChoices.INTEREST_PAYMENT,
+                amount=self.interest_amount,
+                observation=f"Pago a intereses del préstamo {self.loan.code}",
+            )

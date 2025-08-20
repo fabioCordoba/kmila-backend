@@ -83,7 +83,6 @@ class Loan(BaseModel):
         - Valida que no se pague más de lo debido.
         - Si ambos saldos quedan en 0, marca el préstamo como pagado.
         """
-
         if payment.capital_amount > self.capital_balance:
             raise ValueError("El pago de capital supera la deuda pendiente de capital.")
 
@@ -93,35 +92,8 @@ class Loan(BaseModel):
             )
 
         # Restar los saldos
-        # self.capital_balance -= payment.capital_amount
-        # self.interest_balance -= payment.interest_amount
-        # --- Validar y crear movimiento de capital ---
-        if payment.capital_amount and payment.capital_amount > 0:
-            if payment.capital_amount <= self.capital_balance:
-                # actualizar saldo
-                self.capital_balance -= payment.capital_amount
-                # self.loan.save()
-
-                # crear movimiento en Wallet
-                Wallet.objects.create(
-                    type=TypeChoices.INPUT,
-                    concept=ConceptChoices.CAPITAL_PAYMENT,
-                    amount=payment.capital_amount,
-                    observation=f"Pago de capital para préstamo {self.code}",
-                )
-
-        # --- Validar y crear movimiento de intereses ---
-        if payment.interest_amount and payment.interest_amount > 0:
-            if payment.interest_amount <= self.interest_balance:
-                self.interest_balance -= payment.interest_amount
-                # self.loan.save()
-
-                Wallet.objects.create(
-                    type=TypeChoices.INPUT,
-                    concept=ConceptChoices.INTEREST_PAYMENT,
-                    amount=payment.interest_amount,
-                    observation=f"Pago de intereses para préstamo {self.code}",
-                )
+        self.capital_balance -= payment.capital_amount
+        self.interest_balance -= payment.interest_amount
 
         # Si ya no debe nada, cambiar estado
         if self.capital_balance == 0 and self.interest_balance == 0:
