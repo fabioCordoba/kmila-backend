@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from decouple import config
 from pathlib import Path
+from celery.schedules import crontab
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -182,3 +184,20 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# CELERY_BEAT_SCHEDULE = {
+#     "add-interest-every-30-days": {
+#         "task": "apps.loans.tasks.accrue_interest",
+#         "schedule": crontab(day_of_month="1"),  # cada mes, el día 1
+#     },
+# }
+
+CELERY_BEAT_SCHEDULE = {
+    "add-interest-every-5-minutes": {
+        "task": "apps.loan.tasks.loan_tasks.accrue_interest",
+        "schedule": timedelta(minutes=5),
+    },
+}
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"

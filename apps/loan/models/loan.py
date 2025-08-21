@@ -130,26 +130,17 @@ class Loan(BaseModel):
         start = self.start_date.replace(day=1)
         now2 = timezone.now().date().replace(day=1)
 
-        print(start)
-        print(now2)
-        print(accu)
-
         current = start
-        while current <= now:
+        while current <= now2:
             month_str = current.strftime("%Y-%m")
-            print(f"month_str {month_str}")
             has_payment = self.user_payments.filter(
                 payment_date__year=current.year,
                 payment_date__month=current.month,
                 status="paid",
             ).exists()
-            print(has_payment)
             if has_payment:
                 accu = accu - 30
             current += relativedelta(months=1)
-
-        print(accu)
-
         return accu
 
     @property
