@@ -45,7 +45,7 @@ class Payment(BaseModel):
         blank=True,
     )
     status = models.CharField(
-        max_length=10, choices=StatusChoices, default=StatusChoices.PENDING
+        max_length=10, choices=StatusChoices, default=StatusChoices.PAID
     )
 
     def clean(self):

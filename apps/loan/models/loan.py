@@ -9,6 +9,8 @@ from apps.loan.constants.loan_constants import StatusChoices
 from apps.users.models.user import User
 from apps.wallet.constants.wallet_constants import ConceptChoices, TypeChoices
 from apps.wallet.models.wallet import Wallet
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 
 def generate_code(name):
@@ -115,6 +117,62 @@ class Loan(BaseModel):
     def monthly_payment(self):
         """Fixed monthly payment (principal + simple interest)."""
         return self.total_amount_to_pay / self.term_months
+
+    @property
+    def days_elapsed(self):
+        """Número de días transcurridos desde la fecha de inicio del préstamo."""
+        if not self.start_date:
+            return 0
+        now = timezone.now().date()
+
+        accu = (now - self.start_date).days
+
+        start = self.start_date.replace(day=1)
+        now2 = timezone.now().date().replace(day=1)
+
+        print(start)
+        print(now2)
+        print(accu)
+
+        current = start
+        while current <= now:
+            month_str = current.strftime("%Y-%m")
+            print(f"month_str {month_str}")
+            has_payment = self.user_payments.filter(
+                payment_date__year=current.year,
+                payment_date__month=current.month,
+                status="paid",
+            ).exists()
+            print(has_payment)
+            if has_payment:
+                accu = accu - 30
+            current += relativedelta(months=1)
+
+        print(accu)
+
+        return accu
+
+    @property
+    def daily_interest_rate(self):
+        """Interés diario aproximado (suponiendo 30 días por mes)."""
+        return (self.interest_rate / 100) / 30
+
+    @property
+    def accrued_interest(self):
+        """Intereses acumulados hasta hoy (basado en días transcurridos)."""
+        if not self.start_date:
+            return 0
+        days = self.days_elapsed
+        return self.amount * self.daily_interest_rate * days
+
+    @property
+    def paid_payment_dates(self):
+        """Devuelve las fechas de los pagos cuando el préstamo ya está en estado 'paid'."""
+        return list(
+            self.user_payments.filter(status="paid")
+            .order_by("payment_date")
+            .values_list("payment_date", flat=True)
+        )
 
     def __str__(self):
         return f"Loan {self.code} - {self.client.email}"
