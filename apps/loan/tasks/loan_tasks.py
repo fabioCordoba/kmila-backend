@@ -11,7 +11,7 @@ def accrue_interest():
 
     for loan in loans:
         # Calcular interés mensual simple (puedes ajustar fórmula)
-        monthly_interest = (loan.amount * loan.interest_rate) / 100
+        monthly_interest = (loan.capital_balance * loan.interest_rate) / 100
 
         loan.interest_balance += monthly_interest
         loan.save(update_fields=["interest_balance"])
