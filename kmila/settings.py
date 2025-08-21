@@ -149,7 +149,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "America/Bogota"
 
 USE_I18N = True
 
@@ -179,8 +179,8 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -192,15 +192,22 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 #     },
 # }
 
+# CELERY_BEAT_SCHEDULE = {
+#     "add-interest-every-5-minutes": {
+#         "task": "apps.loan.tasks.loan_tasks.accrue_interest",
+#         "schedule": timedelta(minutes=2),
+#     },
+# }
+
 CELERY_BEAT_SCHEDULE = {
-    "add-interest-every-5-minutes": {
+    "add-interest-every-day-7am": {
         "task": "apps.loan.tasks.loan_tasks.accrue_interest",
-        "schedule": timedelta(minutes=5),
+        "schedule": crontab(
+            hour=config("INTEREST_TASK_HOUR", default=7),
+            minute=config("INTEREST_TASK_MINUTE", default=0),
+        ),  # todos los días a las 7:00 AM
     },
 }
-
-# CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
-# CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
 
 CELERY_BROKER_URL = config("CELERY_BROKER_URL", default="")
 CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default="")
