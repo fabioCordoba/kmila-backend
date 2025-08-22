@@ -1,0 +1,41 @@
+version: "3.7"
+
+services:
+  postgres-db:
+    image: postgres:14.3
+    container_name: postgres-db
+    restart: always
+    environment:
+        POSTGRES_DB: kmila-db-test
+        POSTGRES_USER: db_user
+        POSTGRES_PASSWORD: db_password
+    ports:
+      - 5433:5432
+    depends_on:
+      - app
+    networks:
+      - app-network
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+  app:
+    image: fabiocordobadev/personal:kmila-app-v1 
+    container_name: app
+    env_file:
+     - .env
+    ports:
+     - 8020:8000
+    networks:
+     - app-network
+
+  kmila-app:
+     image: fabiocordobadev/personal:kmila-app
+     container_name: kmila-app
+     restart: always
+     ports:
+       - 8040:80
+networks:
+  app-network:
+
+volumes:
+  dbdata:

@@ -1,6 +1,6 @@
-
+version: "3.7"
 services:
-  db:
+  postgres-db:
     image: postgres:14.3
     container_name: kmila-postgres-db
     restart: always
@@ -14,17 +14,23 @@ services:
       - kmila-network
     volumes:
       - dbkmdata:/var/lib/postgresql/data
+  frontend-angular-kmila:
+    image: fabiocordobadev/personal:kmila-app
+    container_name: frontend-angular-kmila
+    restart: always
+    ports:
+      - 8040:80
 
   backend-django-kmila:
     image: fabiocordobadev/personal:backend-django-kmila
     container_name: backend-django-kmila
     restart: always
     ports:
-      - 8110:8000
+      - 8020:8000
     depends_on:
-      - db
+      - postgres-db
     environment:
-      DATABASE_HOST: db
+      DATABASE_HOST: postgres-db
       DATABASE_NAME: kmila-backend-db
       DATABASE_USER: db_user
       DATABASE_PASSWORD: db_password

@@ -34,16 +34,16 @@ ALLOWED_HOSTS = [
     "localhost",
     "fabiocordoba.me",
     "www.fabiocordoba.me",
-    "backendcv.fabiocordoba.me",
+    "test.fabiocordoba.me",
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "https://backendcv.fabiocordoba.me",
+    "https://test.fabiocordoba.me",
     "https://fabiocordoba.me",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://backendcv.fabiocordoba.me",
+    "https://test.fabiocordoba.me",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
