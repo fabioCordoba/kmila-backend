@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from apps.users.models import User
+from typing import Any, cast, Dict
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -44,3 +46,12 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["first_name", "last_name"]
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    def validate(self, attrs) -> Dict[str, Any]:
+        data = cast(Dict[str, Any], super().validate(attrs))
+        user = self.user
+        data["user"] = UserSerializer(user).data
+        return data

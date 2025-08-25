@@ -18,5 +18,5 @@ class User(BaseModel, AbstractUser):
         blank=True,
     )
 
-    # USERNAME_FIELD = "email"
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

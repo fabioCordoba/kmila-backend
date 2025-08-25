@@ -5,12 +5,14 @@ from rest_framework.views import APIView
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.core.mail import send_mail
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.core.utils.send_mail import send_email
 from apps.users.models import User
 from apps.users.serializers.user_loan_serializers import LoanUserSerializer
 from apps.users.serializers.user_serializers import (
+    CustomTokenObtainPairSerializer,
     UserRegisterSerializer,
     UserSerializer,
     UserUpdateSerializer,
@@ -114,3 +116,35 @@ class UserViewSet(
     permission_classes = [IsAuthenticated]
     queryset = User.objects.filter(is_active=True, rol="guest")
     serializer_class = LoanUserSerializer
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()  # <-- invalida el token
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class CheckTokenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        # Si quieres devolver tokens nuevos (como en Laravel)
+        refresh = RefreshToken.for_user(user)
+
+        data = {
+            "user": UserSerializer(user).data,
+            "access": str(refresh.access_token),
+            # "refresh": str(refresh),
+        }
+        return Response(data, status=200)
