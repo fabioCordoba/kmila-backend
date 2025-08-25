@@ -5,7 +5,9 @@ from rest_framework.views import APIView
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.core.mail import send_mail
 
+from apps.core.utils.send_mail import send_email
 from apps.users.models import User
 from apps.users.serializers.user_loan_serializers import LoanUserSerializer
 from apps.users.serializers.user_serializers import (
@@ -66,6 +68,36 @@ class UserView(APIView):
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SendEmailTest(APIView):
+
+    def get(self, request):
+        user = User.objects.get(id=request.user.id)
+        print(user.email)
+        # Enviar correo al cliente
+        subject = "Actualización de tu préstamo TEST"
+        message = (
+            f"Hola {user.first_name},\n\n"
+            f"Se ha aplicado un interés mensual de ${0:,.2f} "
+            f"a tu préstamo con codigo XXX.\n\n"
+            f"Tu nuevo saldo de intereses es: ${0:,.2f}.\n"
+            f"Tu saldo de capital es: ${0:,.2f}.\n\n"
+            "Por favor mantente al día con tus pagos."
+        )
+        recipient = user.email
+        try:
+            # response = send_email(recipient, subject, message)
+            response = send_email(
+                recipient,
+                subject,
+                message,
+            )
+            print(response)
+            print(f"Correo enviado a {user.email}")
+        except Exception as e:
+            print(f"Error enviando correo a {user.email}: {e}")
+        return Response("Send Email Test")
 
 
 class UserViewSet(

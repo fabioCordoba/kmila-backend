@@ -212,3 +212,7 @@ CELERY_BEAT_SCHEDULE = {
 CELERY_BROKER_URL = config("CELERY_BROKER_URL", default="")
 CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default="")
 USE_CELERY = config("USE_CELERY", False)
+
+# Mailgun settings
+
+SENDGRID_API_KEY = config("SENDGRID_API_KEY", "")

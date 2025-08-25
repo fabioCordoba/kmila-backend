@@ -1,8 +1,8 @@
 from celery import shared_task
 from django.utils import timezone
 
+from apps.core.utils.send_mail import send_email
 from apps.loan.models.loan import Loan
-from django.core.mail import send_mail
 
 
 @shared_task
@@ -29,15 +29,14 @@ def accrue_interest():
                 f"Tu saldo de capital es: ${loan.capital_balance:,.2f}.\n\n"
                 "Por favor mantente al día con tus pagos."
             )
-            recipient = [loan.client.email]
+            recipient = loan.client.email
             try:
-                send_mail(
+                response = send_email(
+                    recipient,
                     subject,
                     message,
-                    "no-reply@kmila.com",  # Remitente
-                    recipient,
-                    fail_silently=False,
                 )
+                print(response)
                 print(f"Correo enviado a {loan.client.email}")
             except Exception as e:
                 print(f"Error enviando correo a {loan.client.email}: {e}")
