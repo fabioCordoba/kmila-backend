@@ -1,6 +1,7 @@
 from rest_framework import viewsets, mixins
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
 
 from apps.loan.models.loan import Loan
 from apps.loan.serializers.loan_serializers import LoanClientSerializer
@@ -30,3 +31,29 @@ class LoanViewSet(
             {"detail": f"El Prestamo {loan.code} ha sido desactivado."},
             status=status.HTTP_200_OK,
         )
+
+
+class LoanSearchView(generics.ListAPIView):
+    serializer_class = LoanClientSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Loan.objects.all()
+        field = self.request.query_params.get("field")
+        value = self.request.query_params.get("value")
+
+        allowed_fields = [
+            "code",
+            "amount",
+            "interest_rate",
+            "term_months",
+            "start_date",
+            "status",
+            "created_at",
+        ]
+
+        if field in allowed_fields and value:
+            lookup = {f"{field}__icontains": value}
+            queryset = queryset.filter(**lookup)
+
+        return queryset

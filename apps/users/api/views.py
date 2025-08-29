@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import generics
 
 from apps.core.utils.send_mail import send_email
 from apps.users.models import User
@@ -158,3 +159,21 @@ class CheckTokenView(APIView):
             # "refresh": str(refresh),
         }
         return Response(data, status=200)
+
+
+class UserSearchView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = User.objects.filter(rol="guest")
+        field = self.request.query_params.get("field")
+        value = self.request.query_params.get("value")
+
+        allowed_fields = ["username", "email", "first_name", "last_name", "created_at"]
+
+        if field in allowed_fields and value:
+            lookup = {f"{field}__icontains": value}
+            queryset = queryset.filter(**lookup)
+
+        return queryset

@@ -4,6 +4,7 @@ from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Sum
 from rest_framework.response import Response
+from rest_framework import generics
 
 
 from apps.loan.models.loan import Loan
@@ -79,3 +80,21 @@ class QuickStatsView(APIView):
                 "recovered_capital": recovered_capital,
             }
         )
+
+
+class WalletSearchView(generics.ListAPIView):
+    serializer_class = WalletSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Wallet.objects.all()
+        field = self.request.query_params.get("field")
+        value = self.request.query_params.get("value")
+
+        allowed_fields = ["type", "concept", "amount", "observation", "created_at"]
+
+        if field in allowed_fields and value:
+            lookup = {f"{field}__icontains": value}
+            queryset = queryset.filter(**lookup)
+
+        return queryset

@@ -14,6 +14,9 @@ class Wallet(BaseModel):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     observation = models.TextField(blank=True, null=True)
 
+    class Meta:
+        ordering = ["-created_at"]
+
     @classmethod
     def get_available_balance(cls):
         inputs = (

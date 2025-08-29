@@ -6,6 +6,7 @@ from apps.users.api.views import (
     LogoutView,
     RegisterView,
     SendEmailTest,
+    UserSearchView,
     UserViewSet,
     UserView,
 )
@@ -22,5 +23,6 @@ urlpatterns = [
     path("auth/token/refresh", TokenRefreshView.as_view()),
     path("auth/me", UserView.as_view()),
     path("email/test", SendEmailTest.as_view()),
+    path("users/search/", UserSearchView.as_view(), name="user-search"),
     path("", include(router.urls)),
 ]
