@@ -67,24 +67,27 @@ class Payment(BaseModel):
 
     @transaction.atomic
     def save(self, *args, **kwargs):
+        is_new = self._state.adding
+
         self.clean()
         super().save(*args, **kwargs)
 
-        # Aplica el pago al préstamo
-        self.loan.apply_payment(self)
+        if is_new:
+            # Aplica el pago al préstamo
+            self.loan.apply_payment(self)
 
-        if self.capital_amount > 0:
-            Wallet.objects.create(
-                type=TypeChoices.INPUT,
-                concept=ConceptChoices.CAPITAL_PAYMENT,
-                amount=self.capital_amount,
-                observation=f"Pago a capital del préstamo {self.loan.code}",
-            )
+            if self.capital_amount > 0:
+                Wallet.objects.create(
+                    type=TypeChoices.INPUT,
+                    concept=ConceptChoices.CAPITAL_PAYMENT,
+                    amount=self.capital_amount,
+                    observation=f"Pago a capital del préstamo {self.loan.code}",
+                )
 
-        if self.interest_amount > 0:
-            Wallet.objects.create(
-                type=TypeChoices.INPUT,
-                concept=ConceptChoices.INTEREST_PAYMENT,
-                amount=self.interest_amount,
-                observation=f"Pago a intereses del préstamo {self.loan.code}",
-            )
+            if self.interest_amount > 0:
+                Wallet.objects.create(
+                    type=TypeChoices.INPUT,
+                    concept=ConceptChoices.INTEREST_PAYMENT,
+                    amount=self.interest_amount,
+                    observation=f"Pago a intereses del préstamo {self.loan.code}",
+                )

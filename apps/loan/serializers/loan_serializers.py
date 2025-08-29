@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from apps.loan.models.loan import Loan
-from apps.payment.serializers.payment_serializers import PaymentBasicSerializer
+from apps.payment.serializers.payment_basic_serializers import PaymentBasicSerializer
+from apps.users.models.user import User
 from apps.users.serializers.user_serializers import UserSerializer
 
 
@@ -22,6 +23,7 @@ class LoanSerializer(serializers.ModelSerializer):
 
 
 class LoanClientSerializer(serializers.ModelSerializer):
+    user_id = serializers.UUIDField(write_only=True)
     client = UserSerializer(read_only=True)
     user_payments = PaymentBasicSerializer(many=True, read_only=True)
     total_interest_amount = serializers.DecimalField(
@@ -59,5 +61,11 @@ class LoanClientSerializer(serializers.ModelSerializer):
             "status",
             "client",
             "user_payments",
+            "user_id",
             # "paid_payment_dates",
         ]
+
+    def create(self, validated_data):
+        user_id = validated_data.pop("user_id")
+        user = User.objects.get(id=user_id)
+        return Loan.objects.create(client=user, **validated_data)

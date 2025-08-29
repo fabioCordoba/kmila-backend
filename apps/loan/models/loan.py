@@ -43,6 +43,9 @@ class Loan(BaseModel):
         max_length=10, choices=StatusChoices, default=StatusChoices.ACTIVO
     )
 
+    class Meta:
+        ordering = ["-start_date"]
+
     def clean(self):
         if not self.code:
             available = Wallet.get_available_balance()

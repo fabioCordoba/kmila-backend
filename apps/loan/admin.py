@@ -12,4 +12,5 @@ class LoanAdmin(admin.ModelAdmin):
         "capital_balance",
         "interest_balance",
         "status",
+        "is_active",
     ]

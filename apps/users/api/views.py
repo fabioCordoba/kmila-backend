@@ -103,6 +103,7 @@ class SendEmailTest(APIView):
 
 
 class UserViewSet(
+    mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
@@ -114,8 +115,17 @@ class UserViewSet(
     """
 
     permission_classes = [IsAuthenticated]
-    queryset = User.objects.filter(is_active=True, rol="guest")
+    queryset = User.objects.filter(rol="guest")
     serializer_class = LoanUserSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        user.is_active = False
+        user.save(update_fields=["is_active"])
+        return Response(
+            {"detail": f"El usuario {user.username} ha sido desactivado."},
+            status=status.HTTP_200_OK,
+        )
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):

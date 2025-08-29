@@ -18,5 +18,8 @@ class User(BaseModel, AbstractUser):
         blank=True,
     )
 
+    class Meta:
+        ordering = ["-created_at"]
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

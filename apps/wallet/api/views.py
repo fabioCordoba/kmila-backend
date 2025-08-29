@@ -12,6 +12,7 @@ from apps.wallet.serializers.wallet_serializers import WalletSerializer
 
 
 class WalletViewSet(
+    mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
@@ -70,6 +71,8 @@ class QuickStatsView(APIView):
 
         return Response(
             {
+                "inputs": inputs,
+                "outputs": outputs,
                 "available_capital": available_capital,
                 "invested_loans": invested_loans,
                 "interest_earned": interest_earned,
