@@ -5,6 +5,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 
+from apps.core.permissions.permissions import IsAdminOrReadOnly, IsSuperOrReadOnly
 from apps.loan.models.loan import Loan
 from apps.loan.serializers.loan_serializers import LoanClientSerializer
 
@@ -21,7 +22,7 @@ class LoanViewSet(
     API endpoint to list, view, update, and delete loan.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
     queryset = Loan.objects.filter(is_active=True)
     serializer_class = LoanClientSerializer
 
@@ -37,7 +38,7 @@ class LoanViewSet(
 
 class LoanSearchView(generics.ListAPIView):
     serializer_class = LoanClientSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
 
     def get_queryset(self):
         queryset = Loan.objects.filter(is_active=True)

@@ -5,6 +5,7 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 
+from apps.core.permissions.permissions import IsAdminOrReadOnly, IsSuperOrReadOnly
 from apps.payment.models.payment import Payment
 from apps.payment.serializers.payment_serializers import PaymentSerializer
 
@@ -21,7 +22,7 @@ class PaymentViewSet(
     API endpoint to list, view, update, and delete loan.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
     queryset = Payment.objects.filter(is_active=True)
     serializer_class = PaymentSerializer
 
@@ -37,7 +38,7 @@ class PaymentViewSet(
 
 class PaymentSearchView(generics.ListAPIView):
     serializer_class = PaymentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
 
     def get_queryset(self):
         queryset = Payment.objects.filter(is_active=True)

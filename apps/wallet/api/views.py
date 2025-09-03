@@ -8,6 +8,7 @@ from rest_framework import generics
 from rest_framework import status
 
 
+from apps.core.permissions.permissions import IsAdminOrReadOnly, IsSuperOrReadOnly
 from apps.loan.models.loan import Loan
 from apps.wallet.models import Wallet
 from apps.wallet.serializers.wallet_serializers import WalletSerializer
@@ -25,7 +26,7 @@ class WalletViewSet(
     API endpoint to list, view, update, and delete wallet.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
     queryset = Wallet.objects.filter(is_active=True)
     serializer_class = WalletSerializer
 
@@ -44,7 +45,7 @@ class QuickStatsView(APIView):
     Endpoint that returns quick calculations for the loan business.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
 
     def get(self, request):
         # input and output
@@ -94,7 +95,7 @@ class QuickStatsView(APIView):
 
 class WalletSearchView(generics.ListAPIView):
     serializer_class = WalletSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
 
     def get_queryset(self):
         queryset = Wallet.objects.filter(is_active=True)

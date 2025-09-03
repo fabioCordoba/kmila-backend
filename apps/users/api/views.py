@@ -9,6 +9,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics
 
+from apps.core.permissions.permissions import IsAdminOrReadOnly, IsSuperOrReadOnly
 from apps.core.utils.send_mail import send_email
 from apps.users.models import User
 from apps.users.serializers.user_loan_serializers import LoanUserSerializer
@@ -43,7 +44,7 @@ class RegisterView(APIView):
 
 
 class UserView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
 
     @swagger_auto_schema(
         operation_summary="Obtain authenticated user information",
@@ -115,7 +116,7 @@ class UserViewSet(
     API endpoint to list, view, update, and delete users.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
     queryset = User.objects.filter(rol="guest")
     serializer_class = LoanUserSerializer
 
@@ -145,7 +146,7 @@ class LogoutView(APIView):
 
 
 class CheckTokenView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
 
     def get(self, request):
         user = request.user
@@ -163,7 +164,7 @@ class CheckTokenView(APIView):
 
 class UserSearchView(generics.ListAPIView):
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
 
     def get_queryset(self):
         queryset = User.objects.filter(rol="guest")
