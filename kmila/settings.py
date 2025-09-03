@@ -35,15 +35,24 @@ ALLOWED_HOSTS = [
     "fabiocordoba.me",
     "www.fabiocordoba.me",
     "test.fabiocordoba.me",
+    "kmila.fabiocordoba.me",
+    "backend.camilacorrea.me",
+    "kmila.camilacorrea.me",
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "https://test.fabiocordoba.me",
     "https://fabiocordoba.me",
+    "https://test.fabiocordoba.me",
+    "https://kmila.fabiocordoba.me",
+    "https://backend.camilacorrea.me",
+    "https://kmila.camilacorrea.me",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://test.fabiocordoba.me",
+    "https://kmila.fabiocordoba.me",
+    "https://backend.camilacorrea.me",
+    "https://kmila.camilacorrea.me",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
