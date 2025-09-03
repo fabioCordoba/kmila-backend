@@ -2,6 +2,8 @@ from rest_framework import viewsets, mixins
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
 
 from apps.loan.models.loan import Loan
 from apps.loan.serializers.loan_serializers import LoanClientSerializer
@@ -38,7 +40,7 @@ class LoanSearchView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Loan.objects.all()
+        queryset = Loan.objects.filter(is_active=True)
         field = self.request.query_params.get("field")
         value = self.request.query_params.get("value")
 

@@ -49,18 +49,20 @@ class Payment(BaseModel):
     )
 
     def clean(self):
-        if self.capital_amount < 0 or self.interest_amount < 0:
-            raise ValidationError("Los valores no pueden ser negativos.")
+        # Solo validar en creación
+        if self.pk is None:
+            if self.capital_amount < 0 or self.interest_amount < 0:
+                raise ValidationError("Los valores no pueden ser negativos.")
 
-        if self.capital_amount > self.loan.capital_balance:
-            raise ValidationError(
-                "El pago de capital supera la deuda pendiente de capital."
-            )
+            if self.capital_amount > self.loan.capital_balance:
+                raise ValidationError(
+                    "El pago de capital supera la deuda pendiente de capital."
+                )
 
-        if self.interest_amount > self.loan.interest_balance:
-            raise ValidationError(
-                "El pago de intereses supera la deuda pendiente de intereses."
-            )
+            if self.interest_amount > self.loan.interest_balance:
+                raise ValidationError(
+                    "El pago de intereses supera la deuda pendiente de intereses."
+                )
 
         if not self.code:
             self.code = generate_code("payment")
@@ -76,12 +78,14 @@ class Payment(BaseModel):
             # Aplica el pago al préstamo
             self.loan.apply_payment(self)
 
+            client_name = f"{self.loan.client.first_name} {self.loan.client.last_name}"
+
             if self.capital_amount > 0:
                 Wallet.objects.create(
                     type=TypeChoices.INPUT,
                     concept=ConceptChoices.CAPITAL_PAYMENT,
                     amount=self.capital_amount,
-                    observation=f"Pago a capital del préstamo {self.loan.code}",
+                    observation=f"Pago a capital del préstamo {self.loan.code} - Cliente: {client_name}",
                 )
 
             if self.interest_amount > 0:
@@ -89,5 +93,5 @@ class Payment(BaseModel):
                     type=TypeChoices.INPUT,
                     concept=ConceptChoices.INTEREST_PAYMENT,
                     amount=self.interest_amount,
-                    observation=f"Pago a intereses del préstamo {self.loan.code}",
+                    observation=f"Pago a intereses del préstamo {self.loan.code} - Cliente: {client_name}",
                 )

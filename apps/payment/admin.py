@@ -12,4 +12,5 @@ class PaymentAdmin(admin.ModelAdmin):
         "interest_amount",
         "loan",
         "status",
+        "is_active",
     ]

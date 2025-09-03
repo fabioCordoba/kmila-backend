@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Sum
 from rest_framework.response import Response
 from rest_framework import generics
+from rest_framework import status
 
 
 from apps.loan.models.loan import Loan
@@ -27,6 +28,15 @@ class WalletViewSet(
     permission_classes = [IsAuthenticated]
     queryset = Wallet.objects.filter(is_active=True)
     serializer_class = WalletSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        wallet = self.get_object()
+        wallet.is_active = False
+        wallet.save(update_fields=["is_active"])
+        return Response(
+            {"detail": f"El Monto {wallet.id} ha sido desactivado."},
+            status=status.HTTP_200_OK,
+        )
 
 
 class QuickStatsView(APIView):
@@ -87,7 +97,7 @@ class WalletSearchView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Wallet.objects.all()
+        queryset = Wallet.objects.filter(is_active=True)
         field = self.request.query_params.get("field")
         value = self.request.query_params.get("value")
 
