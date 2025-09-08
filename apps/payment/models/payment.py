@@ -48,6 +48,9 @@ class Payment(BaseModel):
         max_length=10, choices=StatusChoices, default=StatusChoices.PAID
     )
 
+    class Meta:
+        ordering = ["-created_at"]
+
     def clean(self):
         # Solo validar en creación
         if self.pk is None:

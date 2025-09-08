@@ -19,6 +19,8 @@ djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1
 drf-yasg==1.21.10
 ecdsa==0.19.1
+flower==2.0.1
+humanize==4.13.0
 inflection==0.5.1
 isort==6.0.1
 kombu==5.5.4
@@ -27,6 +29,7 @@ mccabe==0.7.0
 packaging==25.0
 pillow==11.3.0
 platformdirs==4.3.8
+prometheus_client==0.22.1
 prompt_toolkit==3.0.51
 psycopg2-binary==2.9.10
 PyJWT==2.10.1
@@ -43,6 +46,7 @@ sendgrid==6.12.4
 six==1.17.0
 sqlparse==0.5.3
 tomlkit==0.13.3
+tornado==6.5.2
 types-PyYAML==6.0.12.20250809
 typing_extensions==4.14.1
 tzdata==2025.2

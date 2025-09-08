@@ -44,7 +44,7 @@ class Loan(BaseModel):
     )
 
     class Meta:
-        ordering = ["-start_date"]
+        ordering = ["-created_at"]
 
     def clean(self):
         if not self.code:

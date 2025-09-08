@@ -59,9 +59,25 @@ class QuickStatsView(APIView):
         )
         available_capital = inputs - outputs
 
-        # Invertido en préstamos activos
-        invested_loans = (
+        # Invertido en préstamos activos total
+        invested_loans_total = (
             Loan.objects.filter(status="active").aggregate(total=Sum("amount"))["total"]
+            or 0
+        )
+
+        # Invertido en préstamos activos actual
+        invested_loans = (
+            Loan.objects.filter(status="active").aggregate(
+                total=Sum("capital_balance")
+            )["total"]
+            or 0
+        )
+
+        # Intereses pendientes
+        interest_pending = (
+            Loan.objects.filter(status="active").aggregate(
+                total=Sum("interest_balance")
+            )["total"]
             or 0
         )
 
@@ -86,8 +102,10 @@ class QuickStatsView(APIView):
                 "inputs": inputs,
                 "outputs": outputs,
                 "available_capital": available_capital,
+                "invested_loans_total": invested_loans_total,
                 "invested_loans": invested_loans,
                 "interest_earned": interest_earned,
+                "interest_pending": interest_pending,
                 "recovered_capital": recovered_capital,
             }
         )
