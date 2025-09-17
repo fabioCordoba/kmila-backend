@@ -1,0 +1,71 @@
+version: "3.7"
+
+services:
+  # frontend-angular-kmila:
+  #   image: fabiocordobadev/personal:kmila-app
+  #   container_name: frontend-angular-kmila
+  #   restart: always
+  #   ports:
+  #     - 8040:80
+
+  backend-django-kmila:
+    image: fabiocordobadev/personal:backend-django-kmila
+    container_name: backend-django-kmila
+    restart: always
+    ports:
+      - 8020:8000
+    environment:
+      DATABASE_HOST: 164.92.113.169
+      DATABASE_NAME: kmila_backend_db
+      DATABASE_USER: fcordoba
+      DATABASE_PASSWORD: bxkqkhp7hp66mwt
+    volumes:
+      - mediakm:/code/media
+    networks:
+      - kmila-network
+
+  # redis:
+  #   restart: on-failure:10
+  #   image: "redis:alpine"
+  #   command: redis-server
+  #   volumes:
+  #     - ./kmila/redis.conf:/usr/local/etc/redis/redis.conf
+  #   environment:
+  #     - REDIS_REPLICATION_MODE=master
+  #   networks:
+  #     - kmila-network
+
+  # worker:
+  #   image: fabiocordobadev/personal:backend-django-kmila
+  #   command: celery -A kmila worker --loglevel=info -Q celery,default
+  #   depends_on:
+  #     - redis
+  #     - backend-django-kmila
+  #   networks:
+  #     - kmila-network
+
+  # celery-beat:
+  #   image: fabiocordobadev/personal:backend-django-kmila
+  #   command: celery -A kmila beat -l info
+  #   depends_on:
+  #     - redis
+  #     - backend-django-kmila
+  #   networks:
+  #     - kmila-network
+
+  # flower:
+  #   image: fabiocordobadev/personal:backend-django-kmila
+  #   command: celery -A kmila flower --address=0.0.0.0 --port=5555
+  #   depends_on:
+  #     - redis
+  #     - backend-django-kmila
+  #   ports:
+  #     - "5555:5555"
+  #   networks:
+  #     - kmila-network
+
+networks:
+  kmila-network:
+
+volumes:
+  mediakm:

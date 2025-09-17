@@ -4,6 +4,7 @@ from apps.loan.serializers.loan_serializers import LoanSerializer
 from apps.payment.models.payment import Payment
 from apps.users.models.user import User
 from apps.users.serializers.user_serializers import UserSerializer
+from psycopg2.extras import DateRange
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -15,6 +16,8 @@ class PaymentSerializer(serializers.ModelSerializer):
     loan_id = serializers.UUIDField(write_only=True)
 
     date_range = serializers.SerializerMethodField()
+    date_range_input_start = serializers.DateField(write_only=True, required=False)
+    date_range_input_end = serializers.DateField(write_only=True, required=False)
 
     class Meta:
         model = Payment
@@ -29,6 +32,8 @@ class PaymentSerializer(serializers.ModelSerializer):
             "observation",
             "support",
             "date_range",
+            "date_range_input_start",  # escritura
+            "date_range_input_end",
             "status",
             "admin",
             "loan",
@@ -36,9 +41,20 @@ class PaymentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         admin_id = validated_data.pop("admin_id")
-        admin = User.objects.get(id=admin_id)
         loan_id = validated_data.pop("loan_id")
+        date_range_input_start = validated_data.pop("date_range_input_start")
+        date_range_input_end = validated_data.pop("date_range_input_end")
+
+        admin = User.objects.get(id=admin_id)
         loan = Loan.objects.get(id=loan_id)
+
+        if date_range_input_start and date_range_input_end:
+            validated_data["date_range"] = DateRange(
+                date_range_input_start,
+                date_range_input_end,
+                bounds="[)",
+            )
+
         return Payment.objects.create(admin=admin, loan=loan, **validated_data)
 
     def get_date_range(self, obj):
