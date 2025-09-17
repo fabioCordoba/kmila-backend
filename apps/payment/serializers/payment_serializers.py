@@ -14,6 +14,8 @@ class PaymentSerializer(serializers.ModelSerializer):
     admin_id = serializers.UUIDField(write_only=True)
     loan_id = serializers.UUIDField(write_only=True)
 
+    date_range = serializers.SerializerMethodField()
+
     class Meta:
         model = Payment
         fields = [
@@ -26,6 +28,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             "interest_amount",
             "observation",
             "support",
+            "date_range",
             "status",
             "admin",
             "loan",
@@ -37,3 +40,8 @@ class PaymentSerializer(serializers.ModelSerializer):
         loan_id = validated_data.pop("loan_id")
         loan = Loan.objects.get(id=loan_id)
         return Payment.objects.create(admin=admin, loan=loan, **validated_data)
+
+    def get_date_range(self, obj):
+        if obj.date_range:
+            return {"start": obj.date_range.lower, "end": obj.date_range.upper}
+        return None

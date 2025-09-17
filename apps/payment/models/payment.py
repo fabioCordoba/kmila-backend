@@ -11,6 +11,7 @@ from apps.payment.constants.payment_constants import StatusChoices
 from apps.users.models.user import User
 from apps.wallet.constants.wallet_constants import ConceptChoices, TypeChoices
 from apps.wallet.models.wallet import Wallet
+from django.contrib.postgres.fields import DateRangeField
 
 
 def generate_code(name):
@@ -47,6 +48,7 @@ class Payment(BaseModel):
     status = models.CharField(
         max_length=10, choices=StatusChoices, default=StatusChoices.PAID
     )
+    date_range = DateRangeField(blank=True, null=True)
 
     class Meta:
         ordering = ["-created_at"]
