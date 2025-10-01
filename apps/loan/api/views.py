@@ -56,6 +56,7 @@ class LoanSearchView(generics.ListAPIView):
             "day",
             "month",
             "year",
+            "client_first_name",
         ]
 
         if field in allowed_fields and value:
@@ -65,6 +66,8 @@ class LoanSearchView(generics.ListAPIView):
                 queryset = queryset.filter(start_date__month=value)
             elif field == "year":
                 queryset = queryset.filter(start_date__year=value)
+            elif field == "client_first_name":
+                queryset = queryset.filter(client__first_name__icontains=value)
             else:
                 lookup = {f"{field}__icontains": value}
                 queryset = queryset.filter(**lookup)
