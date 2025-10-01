@@ -57,6 +57,25 @@ class PaymentSerializer(serializers.ModelSerializer):
 
         return Payment.objects.create(admin=admin, loan=loan, **validated_data)
 
+    def update(self, instance, validated_data):
+        start = validated_data.pop("date_range_input_start")
+        end = validated_data.pop("date_range_input_end")
+
+        current_start = instance.date_range.lower if instance.date_range else None
+        current_end = instance.date_range.upper if instance.date_range else None
+
+        new_start = start if start else current_start
+        new_end = end if end else current_end
+
+        if new_start or new_end:
+            instance.date_range = DateRange(new_start, new_end, bounds="[)")
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
     def get_date_range(self, obj):
         if obj.date_range:
             return {"start": obj.date_range.lower, "end": obj.date_range.upper}

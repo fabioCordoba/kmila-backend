@@ -31,12 +31,14 @@ def accrue_interest():
             )
             recipient = loan.client.email
             try:
-                response = send_email(
-                    recipient,
-                    subject,
-                    message,
+                # response = send_email(
+                #     recipient,
+                #     subject,
+                #     message,
+                # )
+                # print(response)
+                print(
+                    f"Intereses cargados a {loan.client.first_name} - prestamo codigo: {loan.code}"
                 )
-                print(response)
-                print(f"Correo enviado a {loan.client.email}")
             except Exception as e:
                 print(f"Error enviando correo a {loan.client.email}: {e}")

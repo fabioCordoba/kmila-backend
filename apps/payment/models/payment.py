@@ -16,7 +16,7 @@ from django.contrib.postgres.fields import DateRangeField
 
 def generate_code(name):
     initials = "".join([word[0] for word in name.split()])[:3].upper()
-    numbers = "".join(random.choices(string.digits, k=3))
+    numbers = "".join(random.choices(string.digits, k=5))
     return f"{initials}-{numbers}"
 
 
@@ -70,7 +70,10 @@ class Payment(BaseModel):
                 )
 
         if not self.code:
-            self.code = generate_code("payment")
+            new_code = generate_code("payment")
+            while Payment.objects.filter(code=new_code).exists():
+                new_code = generate_code("payment")
+            self.code = new_code
 
     @transaction.atomic
     def save(self, *args, **kwargs):

@@ -15,7 +15,7 @@ from dateutil.relativedelta import relativedelta
 
 def generate_code(name):
     initials = "".join([word[0] for word in name.split()])[:3].upper()
-    numbers = "".join(random.choices(string.digits, k=3))
+    numbers = "".join(random.choices(string.digits, k=5))
     return f"{initials}-{numbers}"
 
 
@@ -54,7 +54,10 @@ class Loan(BaseModel):
                     "No hay suficiente dinero en la caja para conceder este préstamo."
                 )
             else:
-                self.code = generate_code("loan")
+                new_code = generate_code("loan")
+                while Loan.objects.filter(code=new_code).exists():
+                    new_code = generate_code("payment")
+                self.code = new_code
                 self.capital_balance = self.amount
                 self.interest_balance = 0
 

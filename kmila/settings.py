@@ -36,6 +36,8 @@ ALLOWED_HOSTS = [
     "www.fabiocordoba.me",
     "test.fabiocordoba.me",
     "kmila.fabiocordoba.me",
+    "camilacorrea.me",
+    "www.camilacorrea.me",
     "backend.camilacorrea.me",
     "kmila.camilacorrea.me",
 ]
