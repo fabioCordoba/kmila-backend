@@ -53,10 +53,20 @@ class LoanSearchView(generics.ListAPIView):
             "start_date",
             "status",
             "created_at",
+            "day",
+            "month",
+            "year",
         ]
 
         if field in allowed_fields and value:
-            lookup = {f"{field}__icontains": value}
-            queryset = queryset.filter(**lookup)
+            if field == "day":
+                queryset = queryset.filter(start_date__day=value)
+            elif field == "month":
+                queryset = queryset.filter(start_date__month=value)
+            elif field == "year":
+                queryset = queryset.filter(start_date__year=value)
+            else:
+                lookup = {f"{field}__icontains": value}
+                queryset = queryset.filter(**lookup)
 
         return queryset
