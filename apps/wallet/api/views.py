@@ -6,6 +6,8 @@ from django.db.models import Sum
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
+from django.utils.timezone import now
+from datetime import date, timedelta
 
 
 from apps.core.permissions.permissions import IsAdminOrReadOnly, IsSuperOrReadOnly
@@ -48,6 +50,51 @@ class QuickStatsView(APIView):
     permission_classes = [IsAuthenticated, IsSuperOrReadOnly, IsAdminOrReadOnly]
 
     def get(self, request):
+        today = now().date()
+        first_day = today.replace(day=1)
+
+        # calcular último día del mes
+        if today.month == 12:
+            last_day = date(today.year, 12, 31)
+        else:
+            last_day = date(today.year, today.month + 1, 1) - timedelta(days=1)
+
+        # Calcular mes anterior
+        first_day_current = today.replace(day=1)
+        last_day_previous = first_day_current - timedelta(days=1)
+        first_day_previous = last_day_previous.replace(day=1)
+
+        inputs_by_month = (
+            Wallet.objects.filter(
+                type="input", created_at__date__range=(first_day, last_day)
+            ).aggregate(total=Sum("amount"))["total"]
+            or 0
+        )
+
+        outputs_by_month = (
+            Wallet.objects.filter(
+                type="output", created_at__date__range=(first_day, last_day)
+            ).aggregate(total=Sum("amount"))["total"]
+            or 0
+        )
+
+        # Sumas del mes anterior
+        inputs_prev = (
+            Wallet.objects.filter(
+                type="input",
+                created_at__date__range=(first_day_previous, last_day_previous),
+            ).aggregate(total=Sum("amount"))["total"]
+            or 0
+        )
+
+        outputs_prev = (
+            Wallet.objects.filter(
+                type="output",
+                created_at__date__range=(first_day_previous, last_day_previous),
+            ).aggregate(total=Sum("amount"))["total"]
+            or 0
+        )
+
         # input and output
         inputs = (
             Wallet.objects.filter(type="input").aggregate(total=Sum("amount"))["total"]
@@ -107,6 +154,14 @@ class QuickStatsView(APIView):
                 "interest_earned": interest_earned,
                 "interest_pending": interest_pending,
                 "recovered_capital": recovered_capital,
+                "inputs_by_month": inputs_by_month,
+                "outputs_by_month": outputs_by_month,
+                "first_day": first_day,
+                "last_day": last_day,
+                "inputs_prev": inputs_prev,
+                "outputs_prev": outputs_prev,
+                "first_day_previous": first_day_previous,
+                "last_day_previous": last_day_previous,
             }
         )
 
